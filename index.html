@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List In JS With LocalStorage</title>
+</head>
+<body>
+    <div class="container">
+       <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name">
+       </div>
+       <div class="form-group">
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email">
+       </div>
+       <button id="addToDoList">Add</button>
+       <div class="todolist-result"></div>
+    </div>
+    <script>
+        let name = document.querySelector('#name')
+        let email = document.querySelector('#email');
+        let addToDoList = document.querySelector('#addToDoList');
+        let todolist_result = document.querySelector('.todolist-result');
+        let myObj={name:'',email:''}
+        let storedData = localStorage.getItem('setToDoList')
+       let arrayList=[]
+       if(storedData){
+        arrayList = [...JSON.parse(storedData)]
+       }
+        console.log(arrayList);
+      
+        addToDoList.addEventListener('click',(e)=>{
+            let nameValue = name.value.trim();
+            let emailValue = email.value.trim();
+            if(nameValue!=='' && emailValue!==''){
+                myObj.name=nameValue;
+                myObj.email=emailValue;
+                let newItem = {name:nameValue,email:emailValue}
+                arrayList.push(newItem);
+                console.log(arrayList);
+                localStorage.setItem('setTodoList',JSON.stringify(arrayList))
+                name.value=email.value=''
+                //showList();
+            }
+           //x localStorage.clear()
+          
+        })
+    </script>
+</body>
+</html>

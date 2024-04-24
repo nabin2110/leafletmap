@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+</head>
+<body>
+    <div id="map" style="height: 400px;"></div>
+    <div id="distance"></div>
+    <script>
+        var map = L.map('map', {
+            center: [28.3949, 84.1240], // Center the map on Nepal
+            zoom: 7, // Set the initial zoom level to show the entire country
+            maxBounds: [[26.347, 80.058], [30.447, 88.201]], // Set max bounds to restrict panning to Nepal's boundaries
+            maxBoundsViscosity: 1.0, // Keep the map within the bounds even when dragging
+            zoomControl: false // Disable default zoom control
+        });
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Define the markers with popups
+        var markers = [
+            { name: "This is a fancy restaurant", location: [27.7172, 85.3240] },
+            { name: "Lalitpur", location: [27.6742, 85.3240] },
+            { name: "Pokhara", location: [28.2627, 83.9716] }
+        ];
+
+        markers.forEach(function(place) {
+            var marker = L.marker(place.location)
+                .addTo(map)
+                .bindPopup("<b>" + place.name + "</b><br />" + place.location[0] + ", " + place.location[1])
+                .on('mouseover', function(e) {
+                    this.openPopup();
+                })
+                .on('mouseout', function(e) {
+                    this.closePopup();
+                })
+                .on('click', function() {
+                    // Get user's current location using Geolocation API
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+
+                        // Calculate distance between user's location and marker's location
+                        var distance = userLatLng.distanceTo(marker.getLatLng());
+                        var distanceKm = (distance / 1000).toFixed(2); // Convert meters to kilometers and round to 2 decimal places
+
+                        // Display distance
+                        document.getElementById('distance').innerHTML = "Distance from your location to the marker: " + distanceKm + " km";
+
+                        // Create routing control with user's location and marker's location
+                        var control = L.Routing.control({
+                            waypoints: [
+                                userLatLng, // Current user's location
+                                marker.getLatLng() // Marker's location
+                            ],
+                            routeWhileDragging: true,
+                            draggableWaypoints: false,
+                            show: false
+                        }).addTo(map);
+                        control.show();
+                    }, function(error) {
+                        alert("Error getting your location: " + error.message);
+                    });
+                });
+        });
+    </script>
+</body>
+</html>
